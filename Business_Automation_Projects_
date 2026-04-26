@@ -1,0 +1,42 @@
+import json
+
+# Имитация данных, полученных через API (формат JSON)
+delivery_data = '''
+{
+    "delivery_id": "ANT-99283",
+    "items": [
+        {"name": "Red Bull Energy 0.25", "expected": 100, "received": 100, "temp_regime": true},
+        {"name": "Millennium Chocolate", "expected": 50, "received": 48, "temp_regime": false},
+        {"name": "Mango T-Shirt Size M", "expected": 20, "received": 20, "temp_regime": false}
+    ],
+    "warehouse_temp": 18
+}
+'''
+
+def process_delivery(json_input):
+    data = json.loads(json_input)
+    report = []
+    
+    print(f"--- Отчет по поставке {data['delivery_id']} ---")
+    
+    for item in data['items']:
+        name = item['name']
+        status = "✅ Ок"
+        
+        # Логика 1: Проверка количества (Узкое место в логистике)
+        if item['received'] < item['expected']:
+            diff = item['expected'] - item['received']
+            status = f"⚠️ Недостача: {diff} шт."
+        
+        # Логика 2: Проверка температурного режима (Для продуктов питания)
+        if item['temp_regime'] and data['warehouse_temp'] > 5:
+            status += " | ❌ Нарушен темп. режим!"
+            
+        report.append(f"{name}: {status}")
+        
+    return report
+
+# Запуск обработки
+results = process_delivery(delivery_data)
+for line in results:
+    print(line)
